@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>톡으로 받는 의성 (시범)</title>
+<meta name="description" content="2026년 농기계 보조사업 신청 안내 — 「톡으로 받는 의성」 시범 제작 예시">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root {
+    --green: #1E7A46;
+    --green-dk: #135C33;
+    --green-lt: #E8F4EC;
+    --ink: #1A1A1A;
+    --sub: #444;
+    --line: #DADADA;
+    --red: #C8102E;
+    --red-lt: #FDEEEF;
+    --hl: #FFE45C;
+    --chat-bg: #B7CCDD;
+    --chat-btn: #FEE500;
+    --paper: #FFFFFF;
+    --outer: #E9ECEF;
+  }
+  html { font-size: 20px; -webkit-text-size-adjust: 100%; }
+  html.big { font-size: 25px; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--outer); color: var(--ink);
+    font-family: "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+    line-height: 1.55; word-break: keep-all; overflow-wrap: anywhere;
+  }
+  .app { max-width: 480px; margin: 0 auto; min-height: 100vh; background: var(--paper); position: relative; }
+  .demo {
+    background: #333; color: #fff; text-align: center;
+    font-size: 0.7rem; padding: 6px 12px; letter-spacing: .02em;
+  }
+  .screen { display: none; }
+  .screen.on { display: block; }
+  button { font: inherit; cursor: pointer; }
+
+  /* ---------- 상단 바 ---------- */
+  .bar {
+    position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 8px;
+    padding: 10px 12px; background: inherit; border-bottom: 1px solid rgba(0,0,0,.08);
+  }
+  /* 상단 바는 글씨 크게와 무관하게 높이 고정 (px) */
+  .bar { height: 60px; }
+  .bar .title { flex: 1; min-width: 0; font-weight: 700; font-size: 19px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar .avatar { width: 40px; height: 40px; font-size: 11px; }
+  .icon-btn {
+    border: 0; background: transparent; font-size: 24px; line-height: 1;
+    width: 40px; height: 40px; border-radius: 50%; flex: none;
+  }
+  .size-btn {
+    flex: none; border: 2px solid var(--green); color: var(--green); background: #fff;
+    border-radius: 999px; padding: 5px 12px; font-weight: 800; font-size: 16px; white-space: nowrap;
+  }
+  html.big .size-btn { background: var(--green); color: #fff; }
+
+  /* ---------- ① 채팅 화면 ---------- */
+  #chat { background: var(--chat-bg); min-height: calc(100vh - 32px); }
+  #chat .bar { background: var(--chat-bg); }
+  .avatar {
+    width: 2.2rem; height: 2.2rem; border-radius: 38%; background: var(--green); color: #fff;
+    display: grid; place-items: center; font-weight: 800; font-size: 0.6rem; flex: none;
+  }
+  .chat-body { padding: 14px 12px 110px; }
+  .date-chip {
+    display: table; margin: 4px auto 16px; background: rgba(0,0,0,.18); color: #fff;
+    font-size: 0.65rem; padding: 4px 12px; border-radius: 999px;
+  }
+  .msg { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 14px; }
+  .msg .who { font-size: 0.7rem; color: #333; margin-bottom: 4px; }
+  .msg > div:not(.avatar):not(.time) { flex: 0 1 auto; min-width: 0; }
+  .msg .time { flex: none; font-size: 0.55rem; color: #555; align-self: flex-end; white-space: nowrap; }
+  .card {
+    background: #fff; border-radius: 14px; overflow: hidden; width: 19rem; max-width: 100%;
+    box-shadow: 0 1px 2px rgba(0,0,0,.08);
+  }
+  .card-head { background: var(--green); color: #fff; padding: 16px 16px 14px; }
+  .tag {
+    display: inline-block; background: #fff; color: var(--green); font-weight: 800;
+    font-size: 0.6rem; padding: 2px 10px; border-radius: 999px; margin-bottom: 8px;
+  }
+  .card-head h2 { margin: 0; font-size: 1.15rem; line-height: 1.35; }
+  .card-body { padding: 12px 16px; font-size: 0.85rem; }
+  .card-body b { color: var(--red); }
+  .card-btn {
+    display: block; width: 100%; border: 0; border-top: 1px solid #eee; background: #fff;
+    padding: 14px; font-weight: 800; font-size: 0.85rem; color: var(--ink);
+  }
+  .card-btn.primary { background: var(--chat-btn); }
+  .bubble {
+    background: #fff; border-radius: 14px; padding: 10px 14px; font-size: 0.85rem; max-width: 100%;
+  }
+  .input-bar {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 480px; background: #fff; display: flex; gap: 8px;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    border-top: 1px solid #ddd;
+  }
+  .input-bar input {
+    flex: 1; min-width: 0; border: 1px solid #ccc; border-radius: 999px;
+    padding: 10px 16px; font: inherit; font-size: 0.85rem;
+  }
+  .input-bar .send {
+    border: 0; background: var(--chat-btn); border-radius: 999px; padding: 0 16px;
+    font-weight: 800; font-size: 0.8rem;
+  }
+  .hint {
+    text-align: center; font-size: 0.7rem; color: #2b3a47; background: rgba(255,255,255,.55);
+    border-radius: 12px; padding: 8px 12px; margin: 6px 0 14px;
+  }
+
+  /* ---------- ② 안내문 ---------- */
+  #notice .bar { background: #fff; }
+  .hero { background: var(--green); color: #fff; padding: 22px 18px 24px; }
+  .hero h1 { margin: 6px 0 8px; font-size: 1.6rem; line-height: 1.3; }
+  .hero p { margin: 0; font-size: 0.9rem; opacity: .95; }
+  .due {
+    margin-top: 16px; background: #fff; color: var(--ink); border-radius: 12px; padding: 12px 14px;
+  }
+  .due small { display: block; font-size: 0.7rem; color: var(--sub); font-weight: 700; }
+  .due strong { font-size: 1.1rem; color: var(--red); }
+
+  .jump {
+    position: sticky; top: 60px; z-index: 9; background: #fff; display: flex; gap: 6px;
+    overflow-x: auto; padding: 10px 12px; border-bottom: 1px solid var(--line);
+    scrollbar-width: none;
+  }
+  .jump::-webkit-scrollbar { display: none; }
+  .jump a {
+    flex: none; text-decoration: none; color: var(--green-dk); background: var(--green-lt);
+    border-radius: 999px; padding: 6px 12px; font-size: 0.75rem; font-weight: 800;
+  }
+
+  .sec { padding: 22px 18px; border-bottom: 8px solid #F2F3F5; scroll-margin-top: calc(70px + 2.2rem); }
+  .sec h3 { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; font-size: 1.3rem; color: var(--green-dk); }
+  .num {
+    flex: none; width: 1.8rem; height: 1.8rem; border-radius: 50%; background: var(--green); color: #fff;
+    display: grid; place-items: center; font-size: 1rem;
+  }
+  .sec ul { margin: 0; padding-left: 1.1em; }
+  .sec li { margin: 0 0 10px; }
+  .mark { background: linear-gradient(transparent 55%, var(--hl) 55%); font-weight: 800; }
+  .note { font-size: 0.8rem; color: var(--sub); margin-top: 4px; }
+
+  .warn {
+    background: var(--red-lt); border: 2px solid #F3B9C0; border-radius: 14px;
+    padding: 14px 16px; margin-top: 16px;
+  }
+  .warn h4 { margin: 0 0 8px; color: var(--red); font-size: 1rem; }
+  .warn li { margin-bottom: 8px; }
+
+  /* 사업 목록 (펼치기) */
+  .tip { font-size: 0.8rem; color: var(--sub); margin: -4px 0 12px; }
+  details {
+    border: 2px solid var(--line); border-radius: 14px; margin-bottom: 10px; background: #fff;
+  }
+  details[open] { border-color: var(--green); }
+  summary {
+    list-style: none; display: flex; align-items: center; gap: 10px; padding: 14px; font-weight: 800;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary .nm { flex: 1; font-size: 1rem; line-height: 1.35; }
+  summary .pct {
+    flex: none; background: var(--green); color: #fff; border-radius: 10px;
+    padding: 4px 10px; font-size: 1rem; text-align: center; line-height: 1.2;
+  }
+  summary .pct small { display: block; font-size: 0.55rem; font-weight: 700; opacity: .9; }
+  summary .chev { flex: none; transition: transform .2s; color: var(--green); }
+  details[open] .chev { transform: rotate(180deg); }
+  .det { padding: 0 14px 14px; font-size: 0.9rem; }
+  .det p { margin: 0 0 8px; }
+  .lbl {
+    display: inline-block; font-size: 0.65rem; font-weight: 800; border-radius: 6px;
+    padding: 1px 8px; margin-right: 6px; vertical-align: 2px;
+  }
+  .lbl.k { background: var(--green-lt); color: var(--green-dk); }
+  .lbl.c { background: #EEF0F3; color: #333; }
+
+  .big-date { font-size: 1.45rem; font-weight: 900; color: var(--red); line-height: 1.35; margin: 0 0 12px; }
+
+  .ask {
+    background: var(--green-dk); color: #fff; padding: 24px 18px 30px;
+  }
+  .ask p { margin: 0 0 6px; font-size: 0.85rem; opacity: .9; }
+  .ask h3 { margin: 0 0 16px; font-size: 1.3rem; }
+  .ask .kw { color: var(--hl); }
+  .big-btn {
+    display: block; width: 100%; border: 0; border-radius: 14px; padding: 16px;
+    font-weight: 900; font-size: 1rem; margin-bottom: 10px;
+  }
+  .big-btn.y { background: var(--chat-btn); color: #222; }
+  .big-btn.w { background: #fff; color: var(--green-dk); }
+  .src { font-size: 0.6rem; color: #666; padding: 14px 18px 30px; background: #F2F3F5; }
+
+  /* ---------- ③ 1:1 자동응답 ---------- */
+  #ask { background: var(--chat-bg); min-height: calc(100vh - 32px); }
+  #ask .bar { background: var(--chat-bg); }
+  .me { justify-content: flex-end; padding-left: 15%; }
+  #log .msg:not(.me) { padding-right: 8%; }
+  .me .bubble { background: var(--chat-btn); }
+  .quick { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .quick button {
+    border: 2px solid var(--green); background: #fff; color: var(--green-dk);
+    border-radius: 999px; padding: 6px 12px; font-weight: 800; font-size: 0.75rem;
+  }
+  .bubble a { color: var(--green-dk); font-weight: 800; }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+  html { scroll-behavior: smooth; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="demo">시범 제작 예시 · 실제 발송 화면이 아닙니다</div>
+
+  <!-- ① 카카오톡 채널 메시지 수신 화면 -->
+  <section class="screen on" id="chat" aria-label="채널 메시지">
+    <div class="bar">
+      <div class="avatar">의성군</div>
+      <div class="title">의성군 채널</div>
+      <button class="size-btn" data-size>가 글씨 크게</button>
+    </div>
+    <div class="chat-body">
+      <div class="hint">👇 아래 메시지의 <b>[자세히 보기]</b>를 눌러 보세요</div>
+      <span class="date-chip">2025년 12월 22일 월요일</span>
+
+      <div class="msg">
+        <div class="avatar">의성군</div>
+        <div>
+          <div class="who">의성군</div>
+          <div class="card">
+            <div class="card-head">
+              <span class="tag">톡으로 받는 의성</span>
+              <h2>2026년 농기계 보조사업 신청 안내</h2>
+            </div>
+            <div class="card-body">
+              농기계 살 때 군에서 구입비 일부를 지원합니다.<br>
+              신청: <b>12.22.(월) ~ 1.9.(금)</b>
+            </div>
+            <button class="card-btn primary" data-go="notice">자세히 보기</button>
+            <button class="card-btn" data-go="ask">채팅으로 물어보기</button>
+          </div>
+        </div>
+        <div class="time">오전 10:00</div>
+      </div>
+    </div>
+    <div class="input-bar">
+      <input type="text" placeholder="궁금한 단어를 보내 보세요" data-input aria-label="메시지 입력">
+      <button class="send" data-send>전송</button>
+    </div>
+  </section>
+
+  <!-- ② 「톡으로 받는 의성」 안내문 -->
+  <section class="screen" id="notice" aria-label="안내문">
+    <div class="bar">
+      <button class="icon-btn" data-go="chat" aria-label="뒤로">←</button>
+      <div class="title">톡으로 받는 의성</div>
+      <button class="size-btn" data-size>가 글씨 크게</button>
+    </div>
+
+    <div class="hero">
+      <span class="tag">톡으로 받는 의성</span>
+      <h1>2026년<br>농기계 보조사업<br>신청 안내</h1>
+      <p>농기계 살 때 군에서 구입비 일부를 지원합니다</p>
+      <div class="due">
+        <small>신청 기간</small>
+        <strong>2025. 12. 22.(월)<br>~ 2026. 1. 9.(금)</strong>
+      </div>
+    </div>
+
+    <nav class="jump" aria-label="바로가기">
+      <a href="#s1">① 무슨 사업</a>
+      <a href="#s2">② 누가</a>
+      <a href="#s3">③ 얼마나</a>
+      <a href="#s4">④ 언제·어디서</a>
+      <a href="#s5">⑤ 준비물</a>
+    </nav>
+
+    <div class="sec" id="s1">
+      <h3><span class="num">1</span>무슨 사업인가요?</h3>
+      <ul>
+        <li>농기계 구입비 일부를 지원하는 사업 <span class="mark">11가지</span></li>
+        <li><span class="mark">신청서 1장</span>으로 여러 사업을 한꺼번에 신청</li>
+        <li>최대 <span class="mark">3개 사업</span>까지 신청 가능</li>
+      </ul>
+      <div class="note">※ 여러 사업에 뽑혀도 1개 사업만 지원해요<br>(여성농업인 편의장비는 중복 가능)</div>
+    </div>
+
+    <div class="sec" id="s2">
+      <h3><span class="num">2</span>누가 받을 수 있나요?</h3>
+      <ul>
+        <li>의성군에 주소를 둔<br><span class="mark">농업경영체 경영주</span></li>
+      </ul>
+      <div class="note">※ ① 중소형 농기계는 경북 도내 거주자도 가능</div>
+
+      <div class="warn">
+        <h4>⚠ 이런 분은 받을 수 없어요</h4>
+        <ul>
+          <li>최근 3년(2023~2025년) 농기계 지원을 <b>300만원 이상</b> 받은 농가</li>
+          <li>농사 외 소득이 <b>3,700만원 이상</b>인 농가</li>
+          <li>2024·2025년에 사업을 <b>포기</b>한 농가</li>
+          <li>지방세를 <b>체납</b>한 분</li>
+          <li>농업경영체에 등록하지 않은 분, 경영주가 아닌 농업인<br><span class="note">(여성농업인 편의장비는 경영주가 아니어도 신청 가능)</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sec" id="s3">
+      <h3><span class="num">3</span>얼마나 지원하나요?</h3>
+      <p class="tip">👆 사업 이름을 누르면 자세한 내용이 나와요</p>
+
+      <details>
+        <summary><span class="nm">① 중소형 농기계</span><span class="pct"><small>최대</small>50%</span><span class="chev">▼</span></summary>
+        <div class="det">
+          <p><span class="lbl k">기종</span>농업기계목록집에 실린 3천만원 이하 <b>새</b> 농기계 (중고 불가)</p>
+          <p><span class="lbl c">조건</span>경북 도내 거주 경영주 (다른 시·군에 살아도 농지가 의성에 있으면 의성군에서 신청)</p>
+        </div>
+      </details>
+      <details>
+        <summary><span class="nm">② 밭작물 폭염·가뭄 예방</span><span class="pct">70%</span><span class="chev">▼</span></summary>
+        <div class="det">
+          <p><span class="lbl k">기종</span>물탱크, 점적관수, 자동분무시설, 스프링클러, 차광막, 자동환풍기 등</p>
+          <p><span class="lbl c">조건</span>밭작물 0.1ha 이상 재배</p>
+        </div>
+      </details>
+      <details>
+        <summary><span class="nm">③ 대규모 벼농가 대형농기계</span><span class="pct">40%</span><span class="chev">▼</span></summary>
+        <div class="det">
+          <p><span class="lbl k">기종</span>트랙터, 이앙기, 콤바인</p>
+          <p><span class="lbl c">조건</span>벼 3ha 이상 재배 또는 수매 실적 20톤 이상</p>
+        </div>
+      </details>
+      <details>
+        <summary><span class="nm">④ 벼농사 장비</span><span class="pct">50%</span><span class="chev">▼</span></summary>
+        <div class="det">
+          <p><span class="lbl k">기종</span>곡물건조기, 육묘용 파종기, 벼 종자소독기, 농업용 무인보트, 육묘상자 세척기·적재기</p>
+          <p><span class="lbl c">조건</span>곡물건조기는 벼 3ha 이상, 나머지는 벼 1ha 이상 재배</p>
+        </div>
+      </details>
+      <details>
+        <summary><span class="nm">⑤ 여성농업인 편의장비</span><span class="pct">50%</span><span class="chev">▼</span></summary>
+        <div class="det">
+          <p><span class="lbl k">기종</span>다용도 작업대, 충전식 분무기, 충전 운반차, 충전식 제초기, 부탄가스 제초기, 다용도 파종기 중 1개</p>
+          <p><span class="lbl c">조건</span>농사짓는 여성농업인 (최근 3년간 이 사업을 지원받은 분 제외)</p>
+        </div>
+      </details>
+      <details>
+        <summary><span class="nm">⑥ 마늘 농기계</span><span class="pct">50%</span><span class="chev">▼</span></summary>
+        <div class="det">
+          <p><span class="lbl k">기종</span>마늘 파종기, 선별기, 쪽분리기, 수확기(경운기·트랙터 부착형), 탈망기</p>
+          <p><span class="lbl c">조건</span>한지마늘 0.1ha 이상 재배</p>
+        </div>
+      </details>
+      <details>
+        <summary><span class="nm">⑦ 고추 수확용 전동 장비</span><span class="pct">50%</span><span class="chev">▼</span></summary>
+        <div class="det">
+          <p><span class="lbl k">기종</span>고추 수확용 전동형 편의장비</p>
+          <p><span class="lbl c">조건</span>고추 0.1ha 이상 재배</p>
+        </div>
+      </details>
+      <details>
+        <summary><span class="nm">⑧ 과수 장비</span><span class="pct">50%</span><span class="chev">▼</span></summary>
+        <div class="det">
+          <p><span class="lbl k">기종</span>고소작업차, 승용·보행 SS기, 전동 무인방제기, 주행형 동력분무기, 소형트랙터</p>
+          <p><span class="lbl c">조건</span>과수 0.1ha 이상 재배</p>
+        </div>
+      </details>
+      <details>
+        <summary><span class="nm">⑨ 과실 신선도유지기</span><span class="pct">50%</span><span class="chev">▼</span></summary>
+        <div class="det">
+          <p><span class="lbl k">기종</span>과실 신선도유지기</p>
+          <p><span class="lbl c">조건</span>과수 0.1ha 이상 재배</p>
+        </div>
+      </details>
+      <details>
+        <summary><span class="nm">⑩ 농업용수 처리기</span><span class="pct">50%</span><span class="chev">▼</span></summary>
+        <div class="det">
+          <p><span class="lbl k">기종</span>농업용수 처리기</p>
+          <p><span class="lbl c">조건</span>과수 0.1ha 이상 재배</p>
+        </div>
+      </details>
+      <details>
+        <summary><span class="nm">⑪ 휴대용 당도측정기</span><span class="pct">50%</span><span class="chev">▼</span></summary>
+        <div class="det">
+          <p><span class="lbl k">기종</span>휴대용 비파괴 당도측정기</p>
+          <p><span class="lbl c">조건</span>과수 0.1ha 이상 재배</p>
+        </div>
+      </details>
+      <div class="note">※ 조건에 맞는 사업만 신청할 수 있어요. 사업마다 지원 한도가 다릅니다.</div>
+    </div>
+
+    <div class="sec" id="s4">
+      <h3><span class="num">4</span>언제까지, 어디서 신청하나요?</h3>
+      <p class="big-date">2025. 12. 22.(월)<br>~ 2026. 1. 9.(금)</p>
+      <ul>
+        <li><span class="mark">주소지 읍·면사무소</span>에 신청</li>
+      </ul>
+    </div>
+
+    <div class="sec" id="s5">
+      <h3><span class="num">5</span>무엇을 준비하나요?</h3>
+      <ul>
+        <li><span class="mark">통합신청서 1장</span><br><span class="note">(읍·면사무소 산업경제팀에 있어요)</span></li>
+        <li>농기계 판매점 <span class="mark">도장이 찍힌 견적서</span> (꼭 필요)</li>
+      </ul>
+      <div class="warn">
+        <h4>꼭 알아두세요</h4>
+        <ul>
+          <li>뽑힌 뒤 포기하면 다음 해부터 <b>2년간</b> 모든 농기계 지원을 받을 수 없어요</li>
+          <li>농기계 구입은 <b>6월 30일까지</b> 마치는 것이 원칙이에요</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="ask">
+      <p>더 궁금하신 점은</p>
+      <h3>채팅창에 <span class="kw">"농기계"</span>라고<br>보내 보세요</h3>
+      <button class="big-btn y" data-go="ask">💬 채팅으로 물어보기</button>
+      <button class="big-btn w" data-share>📤 가족·이웃에게 알려주기</button>
+    </div>
+    <div class="src">출처: 2026년도 농기계 보조사업 통합접수 지침(의성군, 2025. 12.) · 지원 내용과 기준은 추진 과정에서 바뀔 수 있습니다.</div>
+  </section>
+
+  <!-- ③ 1:1 채팅 자동응답 -->
+  <section class="screen" id="ask" aria-label="채팅 자동응답">
+    <div class="bar">
+      <button class="icon-btn" data-go="notice" aria-label="뒤로">←</button>
+      <div class="avatar">의성군</div>
+      <div class="title">의성군 채널 · 자동응답</div>
+    </div>
+    <div class="chat-body" id="log" aria-live="polite"></div>
+    <div class="input-bar">
+      <input type="text" placeholder="예: 서류, 기한, 대상" data-input aria-label="메시지 입력">
+      <button class="send" data-send>전송</button>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  var root = document.documentElement;
+
+  // 글씨 크게 (기기에 기억)
+  function setBig(on) {
+    root.classList.toggle('big', on);
+    document.querySelectorAll('[data-size]').forEach(function (b) {
+      b.textContent = on ? '가 원래 크기' : '가 글씨 크게';
+    });
+    try { localStorage.setItem('tu-big', on ? '1' : '0'); } catch (e) {}
+  }
+  try { setBig(localStorage.getItem('tu-big') === '1'); } catch (e) { setBig(false); }
+  document.querySelectorAll('[data-size]').forEach(function (b) {
+    b.addEventListener('click', function () { setBig(!root.classList.contains('big')); });
+  });
+
+  // 화면 전환
+  var started = false;
+  function show(id) {
+    document.querySelectorAll('.screen').forEach(function (s) { s.classList.toggle('on', s.id === id); });
+    window.scrollTo(0, 0);
+    if (id === 'ask' && !started) { started = true; ask('농기계'); }
+  }
+  document.addEventListener('click', function (e) {
+    var g = e.target.closest('[data-go]');
+    if (g) { e.preventDefault(); show(g.getAttribute('data-go')); }
+    var q = e.target.closest('[data-q]');
+    if (q) ask(q.getAttribute('data-q'));
+  });
+
+  // 자동응답
+  var log = document.getElementById('log');
+  var MENU = ['신청기한', '구비서류', '지원대상', '지원금액'];
+  var A = {
+    '신청기한': '신청 기간은 <b>2025년 12월 22일(월)부터 2026년 1월 9일(금)까지</b>예요.<br>주소지 <b>읍·면사무소</b>에 신청하세요.',
+    '구비서류': '두 가지만 준비하세요.<br>① <b>통합신청서 1장</b> (읍·면사무소 산업경제팀에 있어요)<br>② 농기계 판매점 <b>도장이 찍힌 견적서</b> (꼭 필요해요)',
+    '지원대상': '의성군에 주소를 둔 <b>농업경영체 경영주</b>예요.<br>최근 3년간 농기계 지원을 300만원 이상 받았으면 신청할 수 없어요.',
+    '지원금액': '사업마다 달라요.<br>대부분 <b>50%</b>, 밭작물 폭염·가뭄 예방은 <b>70%</b>, 대형 농기계는 <b>40%</b>예요.<br><a href="#" data-go="notice">▶ 안내문에서 자세히 보기</a>'
+  };
+  var KEYS = [
+    ['신청기한', ['기한', '언제', '마감', '기간', '날짜']],
+    ['구비서류', ['서류', '준비', '견적', '신청서', '필요']],
+    ['지원대상', ['대상', '누가', '자격', '조건', '받을']],
+    ['지원금액', ['금액', '얼마', '지원금', '보조', '%', '퍼센트', '돈']]
+  ];
+  function esc(t) { return t.replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function quick() {
+    return '<div class="quick">' + MENU.map(function (m) { return '<button data-q="' + m + '">' + m + '</button>'; }).join('') + '</div>';
+  }
+  function add(html, mine) {
+    var d = document.createElement('div');
+    d.className = 'msg' + (mine ? ' me' : '');
+    d.innerHTML = mine ? '<div class="bubble">' + html + '</div>'
+      : '<div class="avatar">의성군</div><div><div class="who">의성군</div><div class="bubble">' + html + '</div></div>';
+    log.appendChild(d);
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  }
+  function answer(t) {
+    if (A[t]) return A[t] + quick();
+    for (var i = 0; i < KEYS.length; i++) {
+      if (KEYS[i][1].some(function (k) { return t.indexOf(k) > -1; })) return A[KEYS[i][0]] + quick();
+    }
+    if (t.indexOf('농기계') > -1)
+      return '「2026년 농기계 보조사업」 안내입니다.<br>궁금한 것을 눌러 주세요.' + quick();
+    return '죄송해요, 잘 모르겠어요.<br>아래에서 골라 주세요.' + quick();
+  }
+  function ask(t) {
+    t = t.trim(); if (!t) return;
+    if (!document.getElementById('ask').classList.contains('on')) { started = true; show('ask'); }
+    add(esc(t), true);
+    setTimeout(function () { add(answer(t), false); }, 450);
+  }
+  document.querySelectorAll('.input-bar').forEach(function (bar) {
+    var inp = bar.querySelector('[data-input]');
+    function go() { var v = inp.value; inp.value = ''; ask(v); }
+    bar.querySelector('[data-send]').addEventListener('click', go);
+    inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
+  });
+
+  // 공유
+  document.querySelectorAll('[data-share]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var data = { title: '2026년 농기계 보조사업 신청 안내', text: '톡으로 받는 의성 — 농기계 보조사업 신청 안내', url: location.href };
+      if (navigator.share) { navigator.share(data).catch(function () {}); }
+      else if (navigator.clipboard) { navigator.clipboard.writeText(location.href).then(function () { alert('주소를 복사했어요. 카톡에 붙여 넣어 보내세요.'); }); }
+    });
+  });
+})();
+</script>
+</body>
+</html>
