@@ -35,6 +35,12 @@
     background: #333; color: #fff; text-align: center;
     font-size: 0.7rem; padding: 6px 12px; letter-spacing: .02em;
   }
+  .switch { display: flex; gap: 6px; padding: 8px 10px; background: #F2F3F5; border-bottom: 1px solid #ddd; }
+  .switch a {
+    flex: 1; text-align: center; text-decoration: none; font-size: 14px; font-weight: 800; padding: 7px 4px;
+    border-radius: 999px; color: var(--green-dk); background: #fff; border: 2px solid #C5D8CB;
+  }
+  .switch a.on { background: var(--green-dk); color: #fff; border-color: var(--green-dk); }
   .screen { display: none; }
   .screen.on { display: block; }
   button { font: inherit; cursor: pointer; }
@@ -216,6 +222,10 @@
 <body>
 <div class="app">
   <div class="demo">시범 제작 예시 · 실제 발송 화면이 아닙니다</div>
+  <nav class="switch" aria-label="방안 선택">
+    <a href="option1.html">방안 1 · 카톡 소식 글</a>
+    <a class="on" href="./">방안 2 · 홈페이지 웹</a>
+  </nav>
 
   <!-- ① 카카오톡 채널 메시지 수신 화면 -->
   <section class="screen on" id="chat" aria-label="채널 메시지">
