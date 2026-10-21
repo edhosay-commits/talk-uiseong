@@ -2,11 +2,21 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#135C33">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>톡으로 받는 의성 (시범)</title>
 <meta name="description" content="2026년 농기계 보조사업 신청 안내 — 「톡으로 받는 의성」 시범 제작 예시">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/static/pretendard.min.css">
 <style>
+  :root { color-scheme: light dark; }
+  /* 휴대폰 다크 모드에서도 브라우저가 색을 강제로 바꾸지 않도록, 다크 모드일 때도 밝은 색을 그대로 지정 */
+  @media (prefers-color-scheme: dark) {
+    html, body { background: #E9ECEF; color: #1A1A1A; }
+    .app { background: #fff; }
+  }
+  input { background: #fff; color: #1A1A1A; }
+  button { color: #1A1A1A; }
   :root {
     --green: #1E7A46;
     --green-dk: #135C33;

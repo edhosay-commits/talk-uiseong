@@ -2,11 +2,21 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#135C33">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>톡으로 받는 의성 · 방안 1 (시범)</title>
 <meta name="description" content="방안 1 · 카카오톡 메시지 + 채널 '소식' 글 — 시범 제작 예시">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/static/pretendard.min.css">
 <style>
+  :root { color-scheme: light dark; }
+  /* 휴대폰 다크 모드에서도 브라우저가 색을 강제로 바꾸지 않도록, 다크 모드일 때도 밝은 색을 그대로 지정 */
+  @media (prefers-color-scheme: dark) {
+    html, body { background: #E9ECEF; color: #1A1A1A; }
+    .app { background: #fff; }
+  }
+  input { background: #fff; color: #1A1A1A; }
+  button { color: #1A1A1A; }
   :root { --green:#1E7A46; --green-dk:#135C33; --green-lt:#E8F4EC; --red:#C8102E; --chat-bg:#B7CCDD; --chat-btn:#FEE500; --outer:#E9ECEF; }
   html { font-size: 18px; -webkit-text-size-adjust: 100%; }
   * { box-sizing: border-box; }
@@ -128,34 +138,34 @@
 <div class="gap"></div>
 <h3>3. 얼마나 지원하나요?</h3>
 <p class="biz">① 중소형 농기계 ▶ 최대 50%</p>
-<p> - 기종: 농업기계목록집에 실린 3천만원 이하 새 농기계 (중고 불가)</p>
-<p> - 조건: 경북 도내 거주 경영주 (다른 시·군에 살아도 농지가 의성에 있으면 의성군에서 신청)</p>
+<p> 🟢 기종: 농업기계목록집에 실린 3천만원 이하 새 농기계 (중고 불가)</p>
+<p> 🔴 조건: 경북 도내 거주 경영주 (다른 시·군에 살아도 농지가 의성에 있으면 의성군에서 신청)</p>
 <p class="biz">② 밭작물 폭염·가뭄 예방 ▶ 70%</p>
-<p> - 기종: 물탱크, 점적관수, 자동분무시설, 스프링클러, 차광막, 자동환풍기 등</p>
-<p> - 조건: 밭작물 0.1ha 이상 재배</p>
+<p> 🟢 기종: 물탱크, 점적관수, 자동분무시설, 스프링클러, 차광막, 자동환풍기 등</p>
+<p> 🔴 조건: 밭작물 0.1ha 이상 재배</p>
 <p class="biz">③ 대규모 벼농가 대형농기계 ▶ 40%</p>
-<p> - 기종: 트랙터, 이앙기, 콤바인</p>
-<p> - 조건: 벼 3ha 이상 재배 또는 수매 실적 20톤 이상</p>
+<p> 🟢 기종: 트랙터, 이앙기, 콤바인</p>
+<p> 🔴 조건: 벼 3ha 이상 재배 또는 수매 실적 20톤 이상</p>
 <p class="biz">④ 벼농사 장비 ▶ 50%</p>
-<p> - 기종: 곡물건조기, 육묘용 파종기, 벼 종자소독기, 농업용 무인보트, 육묘상자 세척기·적재기</p>
-<p> - 조건: 곡물건조기는 벼 3ha 이상, 나머지는 벼 1ha 이상</p>
+<p> 🟢 기종: 곡물건조기, 육묘용 파종기, 벼 종자소독기, 농업용 무인보트, 육묘상자 세척기·적재기</p>
+<p> 🔴 조건: 곡물건조기는 벼 3ha 이상, 나머지는 벼 1ha 이상</p>
 <p class="biz">⑤ 여성농업인 편의장비 ▶ 50%</p>
-<p> - 기종: 다용도 작업대, 충전식 분무기, 충전 운반차, 충전식 제초기, 부탄가스 제초기, 다용도 파종기 중 1개</p>
-<p> - 조건: 농사짓는 여성농업인 (최근 3년간 이 사업 지원받은 분 제외)</p>
+<p> 🟢 기종: 다용도 작업대, 충전식 분무기, 충전 운반차, 충전식 제초기, 부탄가스 제초기, 다용도 파종기 중 1개</p>
+<p> 🔴 조건: 농사짓는 여성농업인 (최근 3년간 이 사업 지원받은 분 제외)</p>
 <p class="biz">⑥ 마늘 농기계 ▶ 50%</p>
-<p> - 기종: 마늘 파종기, 선별기, 쪽분리기, 수확기(경운기·트랙터 부착형), 탈망기</p>
-<p> - 조건: 한지마늘 0.1ha 이상 재배</p>
+<p> 🟢 기종: 마늘 파종기, 선별기, 쪽분리기, 수확기(경운기·트랙터 부착형), 탈망기</p>
+<p> 🔴 조건: 한지마늘 0.1ha 이상 재배</p>
 <p class="biz">⑦ 고추 수확용 전동 장비 ▶ 50%</p>
-<p> - 조건: 고추 0.1ha 이상 재배</p>
+<p> 🔴 조건: 고추 0.1ha 이상 재배</p>
 <p class="biz">⑧ 과수 장비 ▶ 50%</p>
-<p> - 기종: 고소작업차, 승용·보행 SS기, 전동 무인방제기, 주행형 동력분무기, 소형트랙터</p>
-<p> - 조건: 과수 0.1ha 이상 재배</p>
+<p> 🟢 기종: 고소작업차, 승용·보행 SS기, 전동 무인방제기, 주행형 동력분무기, 소형트랙터</p>
+<p> 🔴 조건: 과수 0.1ha 이상 재배</p>
 <p class="biz">⑨ 과실 신선도유지기 ▶ 50%</p>
-<p> - 조건: 과수 0.1ha 이상 재배</p>
+<p> 🔴 조건: 과수 0.1ha 이상 재배</p>
 <p class="biz">⑩ 농업용수 처리기 ▶ 50%</p>
-<p> - 조건: 과수 0.1ha 이상 재배</p>
+<p> 🔴 조건: 과수 0.1ha 이상 재배</p>
 <p class="biz">⑪ 휴대용 당도측정기 ▶ 50%</p>
-<p> - 조건: 과수 0.1ha 이상 재배</p>
+<p> 🔴 조건: 과수 0.1ha 이상 재배</p>
 <p>※ 사업마다 지원 한도가 달라요.</p>
 <div class="gap"></div>
 <h3>4. 언제까지, 어디서 신청하나요?</h3>
